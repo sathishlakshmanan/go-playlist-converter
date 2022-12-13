@@ -9,13 +9,15 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strconv"
 	"time"
 
+	"github.com/joho/godotenv"
 	"github.com/manifoldco/promptui"
 )
 
 func main() {
-	resp := sendRequest(httpClient(), http.MethodPost, "https://httpbin.org/post")
+	resp := sendRequest(httpClient(), http.MethodPost)
 	fmt.Println(string(resp))
 }
 
@@ -27,32 +29,46 @@ func httpClient() *http.Client {
 
 // structure of POST data to create new playlist
 type PlaylistDetails struct {
-	Name        string
-	Description string
-	Public      bool
+	name        string
+	description string
+	public      bool
 }
 
-func createPlaylist(userId string) PlaylistDetails {
-	endpoint := "https://api.spotify.com/v1/users/" + userId + "/playlists"
-	fmt.Println(endpoint)
+func createPlaylist() (string, map[string]string) {
 
 	scanner := bufio.NewScanner(os.Stdin)
+	err := godotenv.Load()
+	CheckError(err)
 
+	userId := os.Getenv("USER_ID")
+	/*
+	 *uncomment the following lines to provide userId dynamically
+	 *fmt.Println("Enter user id: ")
+	 *scanner.Scan()
+	 *userId := scanner.Text()
+	 */
+
+	endpoint := "https://api.spotify.com/v1/users/" + userId + "/playlists"
+
+	fmt.Println("Enter a name for the playlist: ")
 	scanner.Scan()
 	name := scanner.Text()
 
+	fmt.Println("Enter a description for the playlist: ")
 	scanner.Scan()
 	description := scanner.Text()
 
-	public := yesNo()
+	fmt.Println("Would you like your playlist to be public?")
+	isPublic := yesNo()
+	publicConverted := strconv.FormatBool(isPublic)
 
-	details := PlaylistDetails{
-		Name:        name,
-		Description: description,
-		Public:      public,
+	details := map[string]string{
+		"name":        name,
+		"description": description,
+		"public":      publicConverted,
 	}
 
-	return details
+	return endpoint, details
 }
 
 // yes or no prompt to set playlist created as public or private
@@ -74,14 +90,16 @@ func CheckError(err error) {
 	}
 }
 
-func sendRequest(client *http.Client, method string, endpoint string) []byte {
-	details := createPlaylist("")
+func sendRequest(client *http.Client, method string) []byte {
+
+	endpoint, details := createPlaylist()
+	fmt.Println(details)
 
 	jsonData, err := json.Marshal(details)
-
 	CheckError(err)
 
 	req, err := http.NewRequest(method, endpoint, bytes.NewBuffer(jsonData))
+	req.Header.Set("Authorization", os.Getenv("BEARER_TOKEN"))
 	req.Header.Set("Content-Type", "application/json; charset=UTF-8")
 
 	response, err := client.Do(req)
