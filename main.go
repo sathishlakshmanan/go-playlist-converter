@@ -9,7 +9,6 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"strconv"
 	"time"
 
 	"github.com/joho/godotenv"
@@ -29,18 +28,18 @@ func httpClient() *http.Client {
 
 // structure of POST data to create new playlist
 type PlaylistDetails struct {
-	name        string
-	description string
-	public      bool
+	Name        string `json:"name"`
+	Description string `json:"description"`
+	Public      bool   `json:"public"`
 }
 
-func createPlaylist() (string, map[string]string) {
+func createPlaylist() (string, PlaylistDetails) {
 
 	scanner := bufio.NewScanner(os.Stdin)
 	err := godotenv.Load()
 	CheckError(err)
 
-	userId := os.Getenv("USER_ID")
+	// userId := os.Getenv("USER_ID")
 	/*
 	 *uncomment the following lines to provide userId dynamically
 	 *fmt.Println("Enter user id: ")
@@ -48,7 +47,8 @@ func createPlaylist() (string, map[string]string) {
 	 *userId := scanner.Text()
 	 */
 
-	endpoint := "https://api.spotify.com/v1/users/" + userId + "/playlists"
+	// endpoint := "https://api.spotify.com/v1/users/" + userId + "/playlists"
+	endpoint := "https://httpbin.org/post"
 
 	fmt.Println("Enter a name for the playlist: ")
 	scanner.Scan()
@@ -59,13 +59,12 @@ func createPlaylist() (string, map[string]string) {
 	description := scanner.Text()
 
 	fmt.Println("Would you like your playlist to be public?")
-	isPublic := yesNo()
-	publicConverted := strconv.FormatBool(isPublic)
+	public := yesNo()
 
-	details := map[string]string{
-		"name":        name,
-		"description": description,
-		"public":      publicConverted,
+	details := PlaylistDetails{
+		Name:        name,
+		Description: description,
+		Public:      public,
 	}
 
 	return endpoint, details
