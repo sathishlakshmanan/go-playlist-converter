@@ -39,7 +39,7 @@ func createPlaylist() (string, PlaylistDetails) {
 	err := godotenv.Load()
 	CheckError(err)
 
-	// userId := os.Getenv("USER_ID")
+	userId := os.Getenv("USER_ID")
 	/*
 	 *uncomment the following lines to provide userId dynamically
 	 *fmt.Println("Enter user id: ")
@@ -47,8 +47,7 @@ func createPlaylist() (string, PlaylistDetails) {
 	 *userId := scanner.Text()
 	 */
 
-	// endpoint := "https://api.spotify.com/v1/users/" + userId + "/playlists"
-	endpoint := "https://httpbin.org/post"
+	endpoint := "https://api.spotify.com/v1/users/" + userId + "/playlists"
 
 	fmt.Println("Enter a name for the playlist: ")
 	scanner.Scan()
