@@ -13,7 +13,7 @@ import (
 	"github.com/joho/godotenv"
 )
 
-func getUserInput() string {
+func getUserInput() []string {
 
 	scanner := bufio.NewScanner(os.Stdin)
 	err := godotenv.Load()
@@ -22,7 +22,7 @@ func getUserInput() string {
 	// get playlist id from user
 	fmt.Println("Enter the Youtube playlist id: ")
 	scanner.Scan()
-	playlistID := scanner.Text()
+	playlistID := []string{scanner.Text()}
 
 	return playlistID
 }
@@ -39,21 +39,15 @@ func GetPlaylist(client *http.Client, method string) Fields {
 
 	endpoint := "https://youtube.googleapis.com/youtube/v3/playlistItems"
 	queryParams := map[string][]string{
-		"playlistID": []string{getUserInput()},
+		"playlistId": getUserInput(),
 		"part":       []string{"snippet"},
-		"apiKey":     []string{os.Getenv("YOUTUBE_API_KEY")},
+		"key":        []string{os.Getenv("YOUTUBE_API_KEY")},
 		"fields":     []string{"items(snippet)"},
 		"maxResults": []string{"10"},
 	}
 
 	req, err := http.NewRequest(method, endpoint, nil)
-	req.URL.RawQuery = url.Values{
-		"part":       queryParams["part"],
-		"key":        queryParams["apiKey"],
-		"playlistId": queryParams["playlistID"],
-		"fields":     queryParams["fields"],
-		"maxResults": queryParams["maxResults"],
-	}.Encode()
+	req.URL.RawQuery = url.Values(queryParams).Encode()
 
 	response, err := client.Do(req)
 	CheckError(err)
