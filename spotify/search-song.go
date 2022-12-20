@@ -2,13 +2,14 @@ package spotify
 
 import (
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"net/url"
 	"os"
 )
 
-func SearchSong(client *http.Client, method string, query string) TrackResponse {
+func SearchSong(client *http.Client, method string, query string) string {
 
 	endpoint := "https://api.spotify.com/v1/search"
 	queryParams := map[string][]string{
@@ -33,7 +34,11 @@ func SearchSong(client *http.Client, method string, query string) TrackResponse 
 	errr := json.Unmarshal(body, &songs)
 	CheckError(errr)
 
-	return songs
+	// songURI := songs.Tracks.Items
+	// songURI = string(songURI)
+	songURI := fmt.Sprintf("{%s}", songs.Tracks.Items)
+
+	return songURI
 }
 
 type TrackResponse struct {
@@ -42,4 +47,8 @@ type TrackResponse struct {
 			URI string `json:"uri"`
 		} `json:"items"`
 	} `json:"tracks"`
+}
+
+func (t TrackResponse) String() string {
+	return fmt.Sprintf("{%s}", t.Tracks.Items)
 }
