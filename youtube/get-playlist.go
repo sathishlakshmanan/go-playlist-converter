@@ -13,7 +13,7 @@ import (
 	"github.com/joho/godotenv"
 )
 
-func getUserInput() []string {
+func getUserInput() ([]string, []string) {
 
 	scanner := bufio.NewScanner(os.Stdin)
 	err := godotenv.Load()
@@ -22,9 +22,14 @@ func getUserInput() []string {
 	// get playlist id from user
 	fmt.Println("Enter the Youtube playlist id: ")
 	scanner.Scan()
-	playlistID := []string{scanner.Text()}
+	ytPlaylistID := []string{scanner.Text()}
 
-	return playlistID
+	// get number of songs in the playlist
+	fmt.Println("Enter number of songs in the playlist: ")
+	scanner.Scan()
+	noOfSongs := []string{scanner.Text()}
+
+	return ytPlaylistID, noOfSongs
 }
 
 // function to log errors
@@ -37,13 +42,14 @@ func CheckError(err error) {
 // get playlist from youtube
 func GetPlaylist(client *http.Client, method string) Fields {
 
+	ytPlaylistID, noOfSongs := getUserInput()
 	endpoint := "https://youtube.googleapis.com/youtube/v3/playlistItems"
 	queryParams := map[string][]string{
-		"playlistId": getUserInput(),
+		"playlistId": ytPlaylistID,
 		"part":       []string{"snippet"},
 		"key":        []string{os.Getenv("YOUTUBE_API_KEY")},
 		"fields":     []string{"items(snippet)"},
-		"maxResults": []string{"10"},
+		"maxResults": noOfSongs,
 	}
 
 	req, err := http.NewRequest(method, endpoint, nil)
