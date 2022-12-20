@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"regexp"
+	"strings"
 
 	"go-playlist-converter/spotify"
 	"go-playlist-converter/youtube"
@@ -14,8 +15,7 @@ func main() {
 
 	client := httpClient()
 
-	// response := spotify.CreatePlaylist(client, http.MethodPost)
-	// fmt.Println(string(response))
+	playlistID, externalURL := spotify.CreatePlaylist(client, http.MethodPost)
 
 	ytResponse := youtube.GetPlaylist(client, http.MethodGet)
 
@@ -27,9 +27,12 @@ func main() {
 		title := resp.Snippet.Title
 		result := re.Split(title, 2)
 		song := spotify.SearchSong(client, http.MethodGet, result[0])
-		songs = append(songs, fmt.Sprintf("%+v", song.Tracks.Items))
+		songs = append(songs, song)
 	}
-	fmt.Println(songs)
+
+	songsCombined := strings.Join(songs, ",")
+	spotify.AddSongsToPlaylist(client, playlistID, songsCombined)
+	fmt.Printf("Here is your playlist: %v", externalURL)
 }
 
 // client to make requests
