@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"strings"
 )
 
 func SearchSong(client *http.Client, method string, query string) string {
@@ -34,10 +35,8 @@ func SearchSong(client *http.Client, method string, query string) string {
 	errr := json.Unmarshal(body, &songs)
 	CheckError(errr)
 
-	// songURI := songs.Tracks.Items
-	// songURI = string(songURI)
-	songURI := fmt.Sprintf("{%s}", songs.Tracks.Items)
-
+	songURI := fmt.Sprintf("%s", songs.Tracks.Items)
+	songURI = strings.Trim(songURI, "[{}]")
 	return songURI
 }
 
@@ -47,8 +46,4 @@ type TrackResponse struct {
 			URI string `json:"uri"`
 		} `json:"items"`
 	} `json:"tracks"`
-}
-
-func (t TrackResponse) String() string {
-	return fmt.Sprintf("{%s}", t.Tracks.Items)
 }
