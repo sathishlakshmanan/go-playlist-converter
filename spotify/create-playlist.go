@@ -9,17 +9,10 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"time"
 
 	"github.com/joho/godotenv"
 	"github.com/manifoldco/promptui"
 )
-
-// client to make requests
-func httpClient() *http.Client {
-	client := &http.Client{Timeout: 10 * time.Second}
-	return client
-}
 
 // structure of POST data to create new playlist
 type PlaylistDetails struct {
