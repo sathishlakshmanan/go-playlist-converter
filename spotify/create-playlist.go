@@ -76,10 +76,16 @@ func CheckError(err error) {
 	}
 }
 
-func CreatePlaylist(client *http.Client, method string) []byte {
+type PlaylistResponse struct {
+	ExternalUrls struct {
+		Spotify string `json:"spotify"`
+	} `json:"external_urls"`
+	ID string `json:"id"`
+}
+
+func CreatePlaylist(client *http.Client, method string) (string, string) {
 
 	endpoint, details := getUserInput()
-	fmt.Println(details)
 
 	jsonData, err := json.Marshal(details)
 	CheckError(err)
@@ -89,14 +95,20 @@ func CreatePlaylist(client *http.Client, method string) []byte {
 	req.Header.Set("Content-Type", "application/json; charset=UTF-8")
 
 	response, err := client.Do(req)
-
 	CheckError(err)
 
 	defer response.Body.Close()
 
 	body, err := ioutil.ReadAll(response.Body)
-
 	CheckError(err)
 
-	return body
+	var playlistResponse PlaylistResponse
+
+	errr := json.Unmarshal(body, &playlistResponse)
+	CheckError(errr)
+
+	playlistID := fmt.Sprintf("%s", playlistResponse.ID)
+	externalURL := fmt.Sprintf("%s", playlistResponse.ExternalUrls.Spotify)
+
+	return playlistID, externalURL
 }
