@@ -1,4 +1,4 @@
-module go-playlist-converter
+module github.com/sathishlakshmanan/go-playlist-converter
 
 go 1.19
 

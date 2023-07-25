@@ -5,8 +5,8 @@ import (
 	"regexp"
 	"strings"
 
-	"go-playlist-converter/spotify"
-	"go-playlist-converter/youtube"
+	"github.com/sathishlakshmanan/go-playlist-converter/spotify"
+	"github.com/sathishlakshmanan/go-playlist-converter/youtube"
 	"net/http"
 	"time"
 )
